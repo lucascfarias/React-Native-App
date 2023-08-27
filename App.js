@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useState, useContext, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, TextInput, StatusBar } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, TextInput, StatusBar, ScrollView, SafeAreaView } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -110,35 +110,56 @@ function RegisterScreen({navigation}){
 }
 
 
+
 // POKEMON SCREEN
-function PokemonScreen(){
+function PokemonScreen({ navigation }) {
+  const [pokemonList, setPokemonList] = useState([]);
 
   useEffect(() => {
-    checkAuthentication();
+    const fetchData = async () => {
+      try {
+        const authToken = await AsyncStorage.getItem('Admin');
+        if (!authToken) {
+          navigation.navigate('Login');
+          return;
+        }
+
+        const pokemonNames = ['zapdos', 'articuno', 'mewtwo','latios','celebi','dialga','regirock','rayquaza','jirachi','palkia','uxie','lugia','registeel','regigigas','entei','suicune','raikou'];
+        const promises = pokemonNames.map(name =>
+          fetch(`https://pokeapi.co/api/v2/pokemon/${name}`)
+            .then(response => response.json())
+        );
+        const pokemonDataList = await Promise.all(promises);
+        setPokemonList(pokemonDataList);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
   }, []);
 
-  const checkAuthentication = async () => {
-    const authToken = await AsyncStorage.getItem('Admin');
-    if (authToken) {
-      // existing user
-    } else {
-      // no user, go back to login screen
-      navigation.navigate('Login');
-    }
-  };
-
-
-  return(
-    <View style={styles.container}>
-
-
-    </View>
+  return (
+    <ScrollView contentContainerStyle={{ flex: 0, padding:50, backgroundColor:'black'}}>
+      {pokemonList.length > 0 ? (
+        pokemonList.map((pokemonData, index) => (
+          <View key={index} style={{ marginBottom: 20 }}>
+            <Text style={styles.infoPokemon1}>Name: {pokemonData.name}</Text>
+            <Text style={styles.infoPokemon2}>Height: {pokemonData.height}</Text>
+            <Text style={styles.infoPokemon2}>Weight: {pokemonData.weight}</Text>
+            {/* Você pode adicionar mais informações aqui */}
+          </View>
+        ))
+      ) : (
+        <Text>No Pokemon found...</Text>
+      )}
+    </ScrollView>
   );
 }
 
 
-// PORSHE SCREEN
-function PorsheScreen(){
+// MERCEDES SCREEN
+function MercedesScreen(){
   return(
     <View style={styles.container}>
 
@@ -241,6 +262,19 @@ const styles = StyleSheet.create({
   },
 
 
+  // Pokemon Screen
+
+  infoPokemon1:{
+    color:'#fff',
+    fontSize:25,
+
+  },
+  infoPokemon2:{
+    color:'#fff',
+    fontSize:16,
+
+  },
+
 
   // User Screen 
 
@@ -285,6 +319,17 @@ const styles = StyleSheet.create({
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
+// Configuração do cabeçalho personalizado
+const headerOptions = {
+  headerStyle: {
+    backgroundColor: 'blue', // Defina a cor desejada aqui
+  },
+  headerTintColor: 'white', // Cor do texto do cabeçalho
+  headerTitleStyle: {
+    fontWeight: 'bold',
+  },
+};
+
 function AppNavigator() {
   
   return (
@@ -294,7 +339,7 @@ function AppNavigator() {
         <Stack.Screen name="Login" component={LoginScreen} options={{headerShown:false}}/>
         <Stack.Screen name="Register" component={RegisterScreen} options={{headerShown:false}}/>
         <Stack.Screen name="Pokemon" component={PokemonScreen} />
-        <Stack.Screen name="Porshe" component={PorsheScreen} />
+        <Stack.Screen name="Mercedes" component={MercedesScreen} />
         <Stack.Screen name="User" component={UserScreen} />
       </Stack.Navigator>
     </NavigationContainer>
@@ -308,7 +353,7 @@ function AppTabs() {
   return (
     <Tab.Navigator>
       <Tab.Screen name="Pokemon" component={PokemonScreen} />
-      <Tab.Screen name="Porshe" component={PorsheScreen} />
+      <Tab.Screen name="Mercedes" component={MercedesScreen} />
       <Tab.Screen name="User" component={UserScreen} />
     </Tab.Navigator>
   );
