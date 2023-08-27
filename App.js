@@ -1,19 +1,14 @@
 import * as React from 'react';
-import { useState, useContext, useEffect } from 'react';
+import { useState, useContext, createContext, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image, TextInput, StatusBar, ScrollView, SafeAreaView } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useUserContext } from './userContext';
+import {UserProvider} from './userContext'
 
 
-// Authentication
-const authenticateUser = (username, password) => {
-  if (username === 'Admin' && password === '123') {
-    return true; // Authentication successful
-  }
-  return false; // Authentication failed
-};
 
 // LOGIN SCREEN
 export function LoginScreen({navigation}){
@@ -22,21 +17,24 @@ export function LoginScreen({navigation}){
   StatusBar.setHidden(false); // don't hide 
 
 
-  // States
-  const [username, setUsername] = React.useState('');
-  const [password, setPassword] = React.useState('');
 
+  const { updateUser } = useUserContext();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
 
-  // Verify login
-  const verifyLogin = async () => {
-    if (authenticateUser(username, password)) {
-      await AsyncStorage.setItem('Admin', 'Admin');
-      navigation.navigate('Main');
+  const handleLogin = () => {
+    // Simulação de autenticação bem-sucedida
+    const authenticatedUsername = 'Admin';
+    const authenticatedPassword = '123';
+
+    if (username === authenticatedUsername && password === authenticatedPassword) {
+      updateUser(username, password);
+      navigation.navigate('Tabs');
     } else {
       alert('Username or Password Invalid');
     }
   };
-  
+
   return(
     
     // Main Container
@@ -52,10 +50,21 @@ export function LoginScreen({navigation}){
 
       {/* Form Container */}
       <View style={styles.FormContainer}>
-        <TextInput style={styles.InputLogin} placeholder='Username' placeholderTextColor={'#C0C0C0'} onChangeText={(text) => setUsername(text)}/>
-        <TextInput style={styles.InputLogin} placeholder='Password' placeholderTextColor={'#C0C0C0'} secureTextEntry={true} onChangeText={(text) => setPassword(text)}/>
+      <TextInput
+        style={styles.InputLogin}
+        placeholder='Username'
+        placeholderTextColor={'#C0C0C0'}
+        onChangeText={(text) => setUsername(text)}
+      />
+      <TextInput
+        style={styles.InputLogin}
+        placeholder='Password'
+        placeholderTextColor={'#C0C0C0'}
+        secureTextEntry={true}
+        onChangeText={(text) => setPassword(text)}
+      />
         {/* Button to verificate */}
-        <TouchableOpacity style={styles.btnLogin} onPress={verifyLogin}>
+        <TouchableOpacity style={styles.btnLogin} onPress={handleLogin}>
           <Text style={styles.textButton}>Verificar</Text>
         </TouchableOpacity>
 
@@ -171,15 +180,17 @@ function MercedesScreen(){
 
 // USER SCREEN
 function UserScreen({navigation}){
+    const { userData } = useUserContext();
+
   return(
     <View style={styles.UserContainer}>
 
       <Text style={styles.TitleUserScreen}>User Data</Text>
 
       <Text style={styles.LabelUserScreen}>Username:</Text>
-      <Text style={{color:'#fff'}}>{LoginScreen.username}</Text>
+      <Text style={{color:'#fff'}}>{userData.username}</Text>
       <Text style={styles.LabelUserScreen}>Password:</Text>
-      <Text style={{color:'#fff'}}>{LoginScreen.password}</Text>
+      <Text style={{color:'#fff'}}>{userData.password}</Text>
 
 
       {/* Button Logout */}
@@ -191,9 +202,8 @@ function UserScreen({navigation}){
 
     </View>
   );
+
 }
-
-
 
 // STYLESHEET
 
@@ -333,16 +343,19 @@ const headerOptions = {
 function AppNavigator() {
   
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName='Login'>
-        <Stack.Screen name="Main" component={AppTabs} options={{headerShown:false}}/>
-        <Stack.Screen name="Login" component={LoginScreen} options={{headerShown:false}}/>
-        <Stack.Screen name="Register" component={RegisterScreen} options={{headerShown:false}}/>
-        <Stack.Screen name="Pokemon" component={PokemonScreen} />
-        <Stack.Screen name="Mercedes" component={MercedesScreen} />
-        <Stack.Screen name="User" component={UserScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <UserProvider>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName='Login'>
+          <Stack.Screen name="Main" component={AppTabs} options={{headerShown:false}}/>
+          <Stack.Screen name="Login" component={LoginScreen} options={{headerShown:false}}/>
+          <Stack.Screen name="Register" component={RegisterScreen} options={{headerShown:false}}/>
+          <Stack.Screen name="Pokemon" component={PokemonScreen} />
+          <Stack.Screen name="Mercedes" component={MercedesScreen} />
+          <Stack.Screen name="User" component={UserScreen} />
+          <Stack.Screen name="Tabs" component={AppTabs} options={{headerShown:false}}/>
+        </Stack.Navigator>
+      </NavigationContainer>
+    </UserProvider>
   );
 }
  
