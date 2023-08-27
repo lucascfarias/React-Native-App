@@ -7,6 +7,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUserContext } from './userContext';
 import {UserProvider} from './userContext'
+import { getModels } from 'car-info';
 
 
 
@@ -149,10 +150,10 @@ function PokemonScreen({ navigation }) {
   }, []);
 
   return (
-    <ScrollView contentContainerStyle={{ flex: 0, padding:50, backgroundColor:'black'}}>
+    <ScrollView contentContainerStyle={{ flex: 0, padding:30, backgroundColor:'orange'}}>
       {pokemonList.length > 0 ? (
         pokemonList.map((pokemonData, index) => (
-          <View key={index} style={{ marginBottom: 20 }}>
+          <View key={index} style={{ marginBottom:10, padding: 20, backgroundColor:'yellow', borderRadius:10}}>
             <Text style={styles.infoPokemon1}>Name: {pokemonData.name}</Text>
             <Text style={styles.infoPokemon2}>Height: {pokemonData.height}</Text>
             <Text style={styles.infoPokemon2}>Weight: {pokemonData.weight}</Text>
@@ -169,12 +170,23 @@ function PokemonScreen({ navigation }) {
 
 // MERCEDES SCREEN
 function MercedesScreen(){
+
+  const modelsJson = getModels("Mercedes-Benz");
+
+  const models = JSON.stringify(modelsJson, null, 2);
+
   return(
-    <View style={styles.container}>
-
-
-    </View>
+    <SafeAreaView style={{flex: 1, backgroundColor: 'black'}}>
+      <ScrollView>
+        <View style={styles.containerMercedes}>
+          <Text style={{color:'#fff', fontSize:25, fontWeight:'bold', }}>MODELS: {'\n'}</Text>
+          <Text style={{color:'#fff'}}>{models}</Text>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
+
+  
 }
 
 
@@ -183,24 +195,41 @@ function UserScreen({navigation}){
     const { userData } = useUserContext();
 
   return(
-    <View style={styles.UserContainer}>
 
-      <Text style={styles.TitleUserScreen}>User Data</Text>
+    <SafeAreaView style={{flex: 1, backgroundColor: 'black'}}>
 
-      <Text style={styles.LabelUserScreen}>Username:</Text>
-      <Text style={{color:'#fff'}}>{userData.username}</Text>
-      <Text style={styles.LabelUserScreen}>Password:</Text>
-      <Text style={{color:'#fff'}}>{userData.password}</Text>
+      <View style={styles.UserContainer}>
+
+        <Image 
+          source={require('./FotoPasse.png')} 
+          style={{
+            width:150, 
+            height:150, 
+            alignItems:'center', 
+            borderRadius:100,
+            marginBottom:60,
+            marginTop:60,
+          }} />
+
+        <Text style={styles.LabelUserScreen}>Username:</Text>
+        <Text style={{color:'#fff', fontSize:20, marginBottom:40, }}>{userData.username}</Text>
+        <Text style={styles.LabelUserScreen}>Password:</Text>
+        <Text style={{color:'#fff', fontSize:20}}>{userData.password}</Text>
 
 
-      {/* Button Logout */}
-      <View style={styles.LogoutView}>
-        <TouchableOpacity style={styles.btnLogout} onPress={() => navigation.navigate('Login')}>
-          <Text style={{color:'#fff'}}>LOGOUT</Text>
-        </TouchableOpacity>
+        {/* Button Logout */}
+
+        <View style={styles.LogoutView}>
+          <TouchableOpacity style={styles.btnLogout} onPress={() => navigation.navigate('Login')}>
+            <Text style={{color:'#fff'}}>LOGOUT</Text>
+          </TouchableOpacity>
+
+        </View>
+
       </View>
 
-    </View>
+    </SafeAreaView>
+
   );
 
 }
@@ -275,14 +304,23 @@ const styles = StyleSheet.create({
   // Pokemon Screen
 
   infoPokemon1:{
-    color:'#fff',
+    color:'blue',
     fontSize:25,
 
   },
   infoPokemon2:{
-    color:'#fff',
+    color:'blue',
     fontSize:16,
 
+  },
+
+
+  // Mercedes Screen
+  containerMercedes:{
+    flex: 1, 
+    backgroundColor:'#000', // background color (black)
+    margin: 40,
+    paddingLeft:30,
   },
 
 
@@ -290,9 +328,13 @@ const styles = StyleSheet.create({
 
   UserContainer:{
     flex: 1, 
-    alignItems: 'center', 
+    justifyContent:'center',
+    alignItems:'center',
     backgroundColor:'#000', // background color (black)
-  
+    margin: 40,
+    borderWidth:3,
+    borderColor: 'white',
+    borderRadius:15,
   },
 
   TitleUserScreen:{
@@ -304,12 +346,12 @@ const styles = StyleSheet.create({
 
   LabelUserScreen:{
     color:'#fff',
-    fontSize:20,
+    fontSize:25,
     marginBottom:20,
   },
 
   LogoutView:{
-    paddingTop:300,
+    paddingTop:50,
   },
 
   btnLogout:{
