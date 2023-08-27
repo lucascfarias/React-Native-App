@@ -1,22 +1,41 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image, TextInput, StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
+// Authentication
+const authenticateUser = (username, password) => {
+  if (username === 'Admin' && password === '123') {
+    return true; // Authentication successful
+  }
+  return false; // Authentication failed
+};
 
 // LOGIN SCREEN
-function LoginScreen({navigation}){
+export function LoginScreen({navigation}){
 
   // Hide statusbar (batery, time, wifi...)
   StatusBar.setHidden(false); // don't hide 
 
 
   // States
-  const [Username, setUsername] = React.useState('')
-  const [Password, setPassword] = React.useState('')
+  const [username, setUsername] = React.useState('');
+  const [password, setPassword] = React.useState('');
+
+
+  // Verify login
+  const verifyLogin = async () => {
+    if (authenticateUser(username, password)) {
+      await AsyncStorage.setItem('Admin', 'Admin');
+      navigation.navigate('Main');
+    } else {
+      alert('Username or Password Invalid');
+    }
+  };
   
   return(
     
@@ -33,18 +52,19 @@ function LoginScreen({navigation}){
 
       {/* Form Container */}
       <View style={styles.FormContainer}>
-        <TextInput style={styles.InputLogin} placeholder='Username' placeholderTextColor={'#C0C0C0'}/>
-        <TextInput style={styles.InputLogin} placeholder='Password' placeholderTextColor={'#C0C0C0'} secureTextEntry={true}/>
-        {/* Button to Register */}
-        <TouchableOpacity style={styles.btnLogin} onPress={() => navigation.navigate('Main')}>
+        <TextInput style={styles.InputLogin} placeholder='Username' placeholderTextColor={'#C0C0C0'} onChangeText={(text) => setUsername(text)}/>
+        <TextInput style={styles.InputLogin} placeholder='Password' placeholderTextColor={'#C0C0C0'} secureTextEntry={true} onChangeText={(text) => setPassword(text)}/>
+        {/* Button to verificate */}
+        <TouchableOpacity style={styles.btnLogin} onPress={verifyLogin}>
           <Text style={styles.textButton}>Verificar</Text>
         </TouchableOpacity>
 
-        {/* Button to register */}
+        {/* Button I dont have an account */}
         <TouchableOpacity style={styles.btnIDHAA} onPress={() => navigation.navigate('Register')}>
           <Text style={{color:'#fff', fontSize:16, marginTop:30, marginBottom:20}}>I don't have an account</Text>
         </TouchableOpacity>
       </View>
+
 
     </View>
   );
@@ -90,27 +110,24 @@ function RegisterScreen({navigation}){
 }
 
 
-
-// HOME PAGE
-function HomeScreen({navigation}) {
-  return (
-    <View style={styles.container}>
-
-      <Text style={styles.titleHome}>Home Screen</Text>
-
-
-      {/* Button to Detials */}
-      <TouchableOpacity style={styles.btnHome} onPress={() => navigation.navigate('Login')}>
-        <Text style={{color:'#000'}}>Voltar pro Login</Text>
-      </TouchableOpacity>
-
-    </View>
-  );
-}
-
-
 // POKEMON SCREEN
 function PokemonScreen(){
+
+  useEffect(() => {
+    checkAuthentication();
+  }, []);
+
+  const checkAuthentication = async () => {
+    const authToken = await AsyncStorage.getItem('Admin');
+    if (authToken) {
+      // existing user
+    } else {
+      // no user, go back to login screen
+      navigation.navigate('Login');
+    }
+  };
+
+
   return(
     <View style={styles.container}>
 
@@ -139,9 +156,9 @@ function UserScreen({navigation}){
       <Text style={styles.TitleUserScreen}>User Data</Text>
 
       <Text style={styles.LabelUserScreen}>Username:</Text>
-      <Text style={styles.LabelUserScreen}>:</Text>
+      <Text style={{color:'#fff'}}>{LoginScreen.username}</Text>
       <Text style={styles.LabelUserScreen}>Password:</Text>
-      <Text style={styles.LabelUserScreen}>:</Text>
+      <Text style={{color:'#fff'}}>{LoginScreen.password}</Text>
 
 
       {/* Button Logout */}
@@ -154,11 +171,6 @@ function UserScreen({navigation}){
     </View>
   );
 }
-
-
-// function alert(){
-//   alert(senha)
-// }
 
 
 
@@ -282,7 +294,7 @@ function AppNavigator() {
         <Stack.Screen name="Login" component={LoginScreen} options={{headerShown:false}}/>
         <Stack.Screen name="Register" component={RegisterScreen} options={{headerShown:false}}/>
         <Stack.Screen name="Pokemon" component={PokemonScreen} />
-        <Stack.Screen name="Porshe" component={PokemonScreen} />
+        <Stack.Screen name="Porshe" component={PorsheScreen} />
         <Stack.Screen name="User" component={UserScreen} />
       </Stack.Navigator>
     </NavigationContainer>
