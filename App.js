@@ -171,21 +171,27 @@ function PokemonScreen({ navigation }) {
 // MERCEDES SCREEN
 function MercedesScreen(){
 
-  const modelsJson = getModels("Mercedes-Benz");
+  const models = getModels("Mercedes-Benz"); 
 
-  const models = JSON.stringify(modelsJson, null, 2);
-
-  return(
-    <SafeAreaView style={{flex: 1, backgroundColor: 'black'}}>
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: 'black' }}>
       <ScrollView>
         <View style={styles.containerMercedes}>
-          <Text style={{color:'#fff', fontSize:25, fontWeight:'bold', }}>MODELS: {'\n'}</Text>
-          <Text style={{color:'#fff'}}>{models}</Text>
+          <Text style={{ color: '#fff', fontSize: 25, fontWeight: 'bold' }}>MODELS: {'\n'}</Text>
+
+          
+        </View>
+        
+        <View style={styles.ContainerModelMercedes}>
+          {/* API mapping and return a Text with the models data*/}
+          {models.map((model, index) => (
+            <Text key={index} style={styles.models}>{model}</Text>
+          ))}
+
         </View>
       </ScrollView>
     </SafeAreaView>
   );
-
   
 }
 
@@ -319,8 +325,31 @@ const styles = StyleSheet.create({
   containerMercedes:{
     flex: 1, 
     backgroundColor:'#000', // background color (black)
-    margin: 40,
-    paddingLeft:30,
+    marginLeft: 30,
+    marginTop: 30,
+    paddingLeft:20,
+  },
+
+  ContainerModelMercedes:{
+    flex: 1, 
+    backgroundColor:'#fff', // background color (white)
+    marginLeft:40,
+    marginRight:40,
+    padding:30,
+    borderRadius:20,
+    justifyContent:'center',
+    
+  },
+
+
+  models:{
+    color: '#fff', 
+    fontSize: 20,
+    fontWeight:'bold',
+    marginBottom: 10, 
+    backgroundColor:'black',
+    borderRadius:10,
+    padding:20,
   },
 
 
