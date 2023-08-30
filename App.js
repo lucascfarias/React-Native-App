@@ -30,7 +30,7 @@ export function LoginScreen({navigation}){
 
     if (username === authenticatedUsername && password === authenticatedPassword) {
       updateUser(username, password);
-      AsyncStorage.setItem("admin","adminLogin");
+      AsyncStorage.setItem("Admin","AdminLogin");
       navigation.navigate('Tabs');
     } else {
       alert('Username or Password Invalid');
