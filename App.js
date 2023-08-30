@@ -157,7 +157,6 @@ function PokemonScreen({ navigation }) {
             <Text style={styles.infoPokemon1}>Name: {pokemonData.name}</Text>
             <Text style={styles.infoPokemon2}>Height: {pokemonData.height}</Text>
             <Text style={styles.infoPokemon2}>Weight: {pokemonData.weight}</Text>
-            {/* Você pode adicionar mais informações aqui */}
           </View>
         ))
       ) : (
@@ -399,17 +398,6 @@ const styles = StyleSheet.create({
 // ROUTES AND TABS
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
-
-// Configuração do cabeçalho personalizado
-const headerOptions = {
-  headerStyle: {
-    backgroundColor: 'blue', // Defina a cor desejada aqui
-  },
-  headerTintColor: 'white', // Cor do texto do cabeçalho
-  headerTitleStyle: {
-    fontWeight: 'bold',
-  },
-};
 
 function AppNavigator() {
   
